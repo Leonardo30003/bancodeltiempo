@@ -31,7 +31,7 @@ class Usuario(Persona):
        
 
 class Cuenta(models.Model):
-    usuarioCuenta = models.ManyToManyField(Usuario, related_name="cuentas")
+    usuarioCuenta = models.ManyToManyField(Usuario, related_name="cuentaUsuario")
     fechaCreacion = models.DateField(verbose_name="fecha Creacion")
     fechaActualizacion = models.DateField(verbose_name="fecha Actualizacion")
     imagen = models.ImageField(verbose_name="imagen")
@@ -39,6 +39,10 @@ class Cuenta(models.Model):
 
 class Categoria(models.Model):
     nombre_categoria = models.CharField(verbose_name="nombre Categoria", max_length=100)
+    nombre_logo = models.CharField(verbose_name="nombre Logo", max_length=100)
+    descripcion = models.CharField(verbose_name= "descripcion", max_length= 200)
+    choices_estado = [('habilitado', 'Habilitado'), ('Deshabilitado', 'Deshabilitado')]
+    fecha_creacion = models.DateField(verbose_name="fecha Creacion")
     def __str__(self):
         return self.nombre_categoria
 
@@ -46,3 +50,26 @@ class Interes(models.Model):
     usuarioIntereses = models.ManyToManyField(Usuario, related_name="intereses")
     categoria = models.ManyToManyField(Categoria, related_name="categorias")
 
+class Calificacion(models.Model):
+    puntuacion = models.IntegerField(verbose_name="puntuacion")
+    comentarios = models.CharField(verbose_name="password", max_length=50)
+    usuario = models.ForeignKey(Usuario,related_name= "usuarios")
+
+class Servicios(models.Model):
+    titulo = models.CharField(verbose_name="Titulo", max_length=150)
+    descripcion_actividad = models.CharField(verbose_name="descripcion",max_length=256)
+    tiempo_requerido = models.IntegerField(verbose_name="numero de horas requerida")
+    choices_rol = [('Oferta', 'Oferta'), ('Demanda', 'Demanda')]
+    fecha_creacion =models.DateField(verbose_name="fecha_creacion")
+    fecha_vigente =models.DateField(verbose_name="fecha_vigente")
+    propietario=models.ManyToManyField(Usuario, related_name="propietario")
+    choices_rol = [('Vigente', 'Vigente'), ('No vigente', 'No vigente')]    
+    ofertante_Demandate=models.ManyToManyField(Usuario,related_name="ofertanteDemandante")
+
+class Transaccion_Tiempo(models.Model):
+    numero_horas = models.IntegerField(verbose_name="horas_Transferencia")
+    numero_minutos= models.IntegerField(verbose_name="minutos")
+    descripcion = models.CharField(verbose_name="descripcion",max_length=256)
+    ofertante= models.ManyToManyField(Usuario, related_name="ofertante")
+    demandante= models.ManyToManyField(Usuario, related_name="demandante")
+    fechaTransaccion= models.DateField(verbose_name="fecha_transaccion")
