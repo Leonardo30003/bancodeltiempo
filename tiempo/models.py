@@ -39,6 +39,13 @@ class Cuenta(models.Model):
 
 class Categoria(models.Model):
     nombre_categoria = models.CharField(verbose_name="nombre Categoria", max_length=100)
+    nombre_logo = models.CharField(verbose_name="nombre Logo", max_length=100)
+    descripcion = models.CharField(verbose_name= "descripcion", max_length= 200)
+    choices_estado = [('habilitado', 'Habilitado'), ('Desabilitado', 'Desabilitado')]
+    fecha_creacion = models.DateField(verbose_name="fecha Creacion")
+
+
+
     def __str__(self):
         return self.nombre_categoria
 
@@ -46,3 +53,8 @@ class Interes(models.Model):
     usuarioIntereses = models.ManyToManyField(Usuario, related_name="intereses")
     categoria = models.ManyToManyField(Categoria, related_name="categorias")
 
+class Calificacion(models.Model):
+    puntuacion = models.IntegerField(verbose_name="puntuacion")
+    comentarios = models.CharField(verbose_name="password", max_length=50)
+    usuario = models.ForeignKey(Usuario,related_name= "usuarios")
+    
