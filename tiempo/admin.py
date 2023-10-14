@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Rol,Usuario,Cuenta,Categoria,Interes,Calificacion,Servicios,Transaccion_Tiempo
+from .models import Rol,Usuario,Cuenta,Categoria,Interes,Calificacion,Servicio,TransaccionTiempo
 
 # Register your models here.
 admin.site.register(Usuario)
@@ -8,5 +8,5 @@ admin.site.register(Interes)
 admin.site.register(Rol)
 admin.site.register(Categoria)
 admin.site.register(Calificacion)
-admin.site.register(Servicios)
-admin.site.register(Transaccion_Tiempo)
+admin.site.register(Servicio)
+admin.site.register(TransaccionTiempo)

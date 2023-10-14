@@ -1,75 +1,80 @@
 from django.db import models
-
+from django.contrib.auth.models import AbstractUser
 # Create your models here.
-from django.db import models
 
-class Persona(models.Model):
-    choices_genero = [('h', 'Hombre'), ('m', 'Mujer')]
-    nombres = models.CharField(verbose_name="nombres", max_length=50)
-    apellidos = models.CharField(verbose_name="apellidos", max_length=50)
-    genero = models.CharField(verbose_name="genero", max_length=1, choices=choices_genero)
-    documento_identificacion = models.CharField(verbose_name="cedula", max_length=50)
-    email = models.CharField(verbose_name="email", max_length=50)
-    telefono = models.CharField(verbose_name="telefono", max_length=50)
-    fechaNacimiento = models.DateField(verbose_name="fecha Nacimiento")
-    direccion = models.CharField(verbose_name="direccion", max_length=150)
+class Persona(AbstractUser):
+    GENDER_CHOICES = [('h', 'Hombre'), ('m', 'Mujer')]
+    first_name = models.CharField(verbose_name="Nombres", max_length=50)
+    last_name = models.CharField(verbose_name="Apellidos", max_length=50)
+    username=models.CharField(verbose_name="Username", max_length=100, unique=True)
+    password=models.CharField(verbose_name="Password", max_length=100)
+    genero = models.CharField(verbose_name="Género", max_length=1, choices=GENDER_CHOICES)
+    documento_identificacion = models.CharField(verbose_name="Cédula", max_length=50)
+    email = models.EmailField(verbose_name="Email", max_length=50)
+    telefono = models.CharField(verbose_name="Teléfono", max_length=50)
+    fecha_nacimiento = models.DateField(verbose_name="Fecha de Nacimiento",null=True, blank=True)
+    direccion = models.CharField(verbose_name="Dirección", max_length=150,null=True, blank=True)
 
     def __str__(self):
-        return self.nombres
+        return self.first_name
 
 class Rol(models.Model):
-    choices_rol = [('administrador', 'Administrador'), ('cliente', 'Cliente')]
-    nombre_rol = models.CharField(verbose_name="nombreRol", max_length=50, choices=choices_rol)
+    ROLE_CHOICES = [('administrador', 'Administrador'), ('cliente', 'Cliente')]
+    nombre_rol = models.CharField(verbose_name="Nombre de Rol", max_length=50, choices=ROLE_CHOICES)
 
     def __str__(self):
         return self.nombre_rol
 
-class Usuario(Persona):
-    nombre_usuario = models.CharField(verbose_name="usuario", max_length=50)
-    password = models.CharField(verbose_name="password", max_length=50)
-    rol = models.ManyToManyField(Rol, related_name="usuarios")
-       
+class Usuario(Persona):  
+    rol = models.ManyToManyField(Rol, related_name="usuarios", null=True, blank=True)
 
 class Cuenta(models.Model):
-    usuarioCuenta = models.ManyToManyField(Usuario, related_name="cuentaUsuario")
-    fechaCreacion = models.DateField(verbose_name="fecha Creacion")
-    fechaActualizacion = models.DateField(verbose_name="fecha Actualizacion")
-    imagen = models.ImageField(verbose_name="imagen")
-    numero_horas = models.IntegerField(verbose_name="numeroHoras")
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="cuentas", null=True, blank=True)
+    fecha_creacion = models.DateField(verbose_name="Fecha de Creación")
+    fecha_actualizacion = models.DateField(verbose_name="Fecha de Actualización")
+    imagen = models.ImageField(upload_to="fotos/",verbose_name="Imagen")
+    numero_horas = models.IntegerField(verbose_name="Número de Horas")
 
 class Categoria(models.Model):
-    nombre_categoria = models.CharField(verbose_name="nombre Categoria", max_length=100)
-    nombre_logo = models.CharField(verbose_name="nombre Logo", max_length=100)
-    descripcion = models.CharField(verbose_name= "descripcion", max_length= 200)
-    choices_estado = [('habilitado', 'Habilitado'), ('Deshabilitado', 'Deshabilitado')]
-    fecha_creacion = models.DateField(verbose_name="fecha Creacion")
+    nombre_categoria = models.CharField(verbose_name="Nombre de Categoría", max_length=100)
+    nombre_logo = models.CharField(verbose_name="Nombre de Logo", max_length=100)
+    descripcion = models.CharField(verbose_name="Descripción", max_length=200)
+    ESTADO_CHOICES = [('habilitado', 'Habilitado'), ('deshabilitado', 'Deshabilitado')]
+    fecha_creacion = models.DateField(verbose_name="Fecha de Creación")
+
     def __str__(self):
         return self.nombre_categoria
 
 class Interes(models.Model):
-    usuarioIntereses = models.ManyToManyField(Usuario, related_name="intereses")
-    categoria = models.ManyToManyField(Categoria, related_name="categorias")
+    usuario = models.ManyToManyField(Usuario, related_name="intereses",null=True, blank=True)
+    categoria = models.ManyToManyField(Categoria, related_name="categorias",null=True, blank=True)
 
 class Calificacion(models.Model):
-    puntuacion = models.IntegerField(verbose_name="puntuacion")
-    comentarios = models.CharField(verbose_name="password", max_length=50)
-    usuario = models.ForeignKey(Usuario,related_name= "usuarios")
+    puntuacion = models.IntegerField(verbose_name="Puntuación")
+    comentarios = models.CharField(verbose_name="Comentarios", max_length=50)
+    usuario_calificacion = models.ManyToManyField(Usuario, related_name="calificaciones",null=True, blank=True)
 
-class Servicios(models.Model):
-    titulo = models.CharField(verbose_name="Titulo", max_length=150)
-    descripcion_actividad = models.CharField(verbose_name="descripcion",max_length=256)
-    tiempo_requerido = models.IntegerField(verbose_name="numero de horas requerida")
-    choices_rol = [('Oferta', 'Oferta'), ('Demanda', 'Demanda')]
-    fecha_creacion =models.DateField(verbose_name="fecha_creacion")
-    fecha_vigente =models.DateField(verbose_name="fecha_vigente")
-    propietario=models.ManyToManyField(Usuario, related_name="propietario")
-    choices_rol = [('Vigente', 'Vigente'), ('No vigente', 'No vigente')]    
-    ofertante_Demandate=models.ManyToManyField(Usuario,related_name="ofertanteDemandante")
-
-class Transaccion_Tiempo(models.Model):
-    numero_horas = models.IntegerField(verbose_name="horas_Transferencia")
-    numero_minutos= models.IntegerField(verbose_name="minutos")
-    descripcion = models.CharField(verbose_name="descripcion",max_length=256)
-    ofertante= models.ManyToManyField(Usuario, related_name="ofertante")
-    demandante= models.ManyToManyField(Usuario, related_name="demandante")
-    fechaTransaccion= models.DateField(verbose_name="fecha_transaccion")
+class Servicio(models.Model):
+    ROL_CHOICES = models.CharField( verbose_name="oferta/demanda",max_length=15,choices=[('Oferta', 'Oferta'), ('Demanda', 'Demanda')],null=True,blank=True)
+    titulo = models.CharField(verbose_name="Título", max_length=150)
+    Categoria=models.ForeignKey(Categoria,on_delete=models.RESTRICT ,null=True, blank=True)
+    descripcion_actividad = models.CharField(verbose_name="Descripción", max_length=256)
+    tiempo_requerido = models.IntegerField(verbose_name="Horas Requeridas")
+    fecha_creacion = models.DateField(verbose_name="Fecha de Creación")
+    fecha_vigente = models.DateField(verbose_name="Fecha Vigente")
+    propietario = models.ForeignKey(Usuario,on_delete=models.RESTRICT,null=True, blank=True)
+    estado = models.CharField (verbose_name="Estado", max_length=20, choices=[('Vigente', 'Vigente'), ('No vigente', 'No vigente')])
+    def __str__(self):
+        return self.titulo
+       
+class TransaccionTiempo(models.Model):
+    servicio=models.ForeignKey(Servicio,on_delete=models.RESTRICT,null=True, blank=True)
+    numero_horas = models.IntegerField(verbose_name="Horas de Transferencia")
+    numero_minutos = models.IntegerField(verbose_name="Minutos")
+    descripcion = models.CharField(verbose_name="Descripción", max_length=256)
+    demandante = models.ManyToManyField(Usuario, related_name="transacciones_demandante", blank=True)
+    fecha_transaccion = models.DateField(verbose_name="Fecha de Transacción")
+    cuentaTransaccion = models.ForeignKey(Cuenta,on_delete=models.RESTRICT ,null=True, blank=True)
+    estado = models.CharField(verbose_name="Estado",max_length=20,choices=[('solicitada', 'Solicitada'),('en_proceso', 'En Proceso'),('aprobada', 'Aprobada'),('rechazada', 'Rechazada'),('cancelada', 'Cancelada'),('completada', 'Completada'),('pendiente', 'Pendiente'),('error', 'Error'),('en_revision', 'En Revisión'),])
+def __str__(self):
+        return str(self.fecha_transaccion)
