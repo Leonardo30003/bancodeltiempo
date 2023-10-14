@@ -76,5 +76,5 @@ class TransaccionTiempo(models.Model):
     fecha_transaccion = models.DateField(verbose_name="Fecha de Transacción")
     cuentaTransaccion = models.ForeignKey(Cuenta,on_delete=models.RESTRICT ,null=True, blank=True)
     estado = models.CharField(verbose_name="Estado",max_length=20,choices=[('solicitada', 'Solicitada'),('en_proceso', 'En Proceso'),('aprobada', 'Aprobada'),('rechazada', 'Rechazada'),('cancelada', 'Cancelada'),('completada', 'Completada'),('pendiente', 'Pendiente'),('error', 'Error'),('en_revision', 'En Revisión'),])
-def __str__(self):
+    def __str__(self):
         return str(self.fecha_transaccion)
