@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+
 # Create your models here.
 
 class Persona(AbstractUser):
@@ -17,7 +18,7 @@ class Persona(AbstractUser):
 
     def __str__(self):
         return self.first_name
-
+    
 class Rol(models.Model):
     ROLE_CHOICES = [('administrador', 'Administrador'), ('cliente', 'Cliente')]
     nombre_rol = models.CharField(verbose_name="Nombre de Rol", max_length=50, choices=ROLE_CHOICES)
@@ -25,16 +26,19 @@ class Rol(models.Model):
     def __str__(self):
         return self.nombre_rol
 
-class Usuario(Persona):  
-    rol = models.ManyToManyField(Rol, related_name="usuarios", null=True, blank=True)
+class Usuario(models.Model):
+    persona = models.OneToOneField(Persona, on_delete=models.CASCADE)
+    nombre_usuario = models.CharField(verbose_name="Usuario", max_length=50)
+    password = models.CharField(verbose_name="Contraseña", max_length=50)
+    rol = models.ManyToManyField(Rol, related_name="usuarios", blank=True)
 
 class Cuenta(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="cuentas", null=True, blank=True)
     fecha_creacion = models.DateField(verbose_name="Fecha de Creación")
     fecha_actualizacion = models.DateField(verbose_name="Fecha de Actualización")
-    imagen = models.ImageField(upload_to="fotos/",verbose_name="Imagen")
+    imagen = models.ImageField(verbose_name="Imagen")
     numero_horas = models.IntegerField(verbose_name="Número de Horas")
-  
+
 class Categoria(models.Model):
     nombre_categoria = models.CharField(verbose_name="Nombre de Categoría", max_length=100)
     descripcion = models.CharField(verbose_name="Descripción", max_length=200)
@@ -45,11 +49,28 @@ class Categoria(models.Model):
         return self.nombre_categoria
 
 class Interes(models.Model):
-    usuario = models.ManyToManyField(Usuario, related_name="intereses",null=True, blank=True)
-    categoria = models.ManyToManyField(Categoria, related_name="categorias",null=True, blank=True)
+    usuario = models.ManyToManyField(Usuario, related_name="intereses", blank=True)
+    categoria = models.ManyToManyField(Categoria, related_name="categorias", blank=True)
 
 class Calificacion(models.Model):
-    puntuacion = models.IntegerField(verbose_name="puntuacion")
-    comentarios = models.CharField(verbose_name="password", max_length=50)
-    usuario = models.ForeignKey(Usuario,related_name= "usuarios")
-    
+    puntuacion = models.IntegerField(verbose_name="Puntuación")
+    comentarios = models.CharField(verbose_name="Comentarios", max_length=50)
+    usuario_calificacion = models.ManyToManyField(Usuario, related_name="calificaciones", blank=True)
+
+class Servicio(models.Model):
+    titulo = models.CharField(verbose_name="Título", max_length=150)
+    descripcion_actividad = models.CharField(verbose_name="Descripción", max_length=256)
+    tiempo_requerido = models.IntegerField(verbose_name="Horas Requeridas")
+    ROL_CHOICES = [('Oferta', 'Oferta'), ('Demanda', 'Demanda')]
+    fecha_creacion = models.DateField(verbose_name="Fecha de Creación")
+    fecha_vigente = models.DateField(verbose_name="Fecha Vigente")
+    propietario = models.ManyToManyField(Usuario, related_name="servicios_propietario", blank=True)
+    estado = models.CharField(verbose_name="Estado", max_length=10, choices=[('Vigente', 'Vigente'), ('No vigente', 'No vigente')])
+    ofertante_demandante = models.ManyToManyField(Usuario, related_name="servicios_ofertante_demandante", blank=True)
+
+class TransaccionTiempo(models.Model):
+    numero_horas = models.IntegerField(verbose_name="Horas de Transferencia")
+    numero_minutos = models.IntegerField(verbose_name="Minutos")
+    descripcion = models.CharField(verbose_name="Descripción", max_length=256)
+    demandante = models.ManyToManyField(Usuario, related_name="transacciones_demandante", blank=True)
+    fecha_transaccion = models.DateField(verbose_name="Fecha de Transacción")
