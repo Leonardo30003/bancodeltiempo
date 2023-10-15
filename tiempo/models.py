@@ -26,7 +26,7 @@ class Rol(models.Model):
     def __str__(self):
         return self.nombre_rol
 
-class Usuario(AbstractUser):
+class Usuario(models.Model):
     persona = models.OneToOneField(Persona, on_delete=models.CASCADE)
     nombre_usuario = models.CharField(verbose_name="Usuario", max_length=50)
     password = models.CharField(verbose_name="Contraseña", max_length=50)
@@ -44,12 +44,18 @@ class Categoria(models.Model):
     descripcion = models.CharField(verbose_name="Descripción", max_length=200)
     ESTADO_CHOICES = [('habilitado', 'Habilitado'), ('deshabilitado', 'Deshabilitado')]
     fecha_creacion = models.DateField(verbose_name="Fecha de Creación")
+
     def __str__(self):
         return self.nombre_categoria
 
 class Interes(models.Model):
     usuario = models.ManyToManyField(Usuario, related_name="intereses", blank=True)
     categoria = models.ManyToManyField(Categoria, related_name="categorias", blank=True)
+
+class Calificacion(models.Model):
+    puntuacion = models.IntegerField(verbose_name="Puntuación")
+    comentarios = models.CharField(verbose_name="Comentarios", max_length=50)
+    usuario_calificacion = models.ManyToManyField(Usuario, related_name="calificaciones", blank=True)
 
 class Servicio(models.Model):
     titulo = models.CharField(verbose_name="Título", max_length=150)
@@ -61,23 +67,10 @@ class Servicio(models.Model):
     propietario = models.ManyToManyField(Usuario, related_name="servicios_propietario", blank=True)
     estado = models.CharField(verbose_name="Estado", max_length=10, choices=[('Vigente', 'Vigente'), ('No vigente', 'No vigente')])
     ofertante_demandante = models.ManyToManyField(Usuario, related_name="servicios_ofertante_demandante", blank=True)
-    def __str__(self):
-        return self.titulo
 
 class TransaccionTiempo(models.Model):
-    servicioTransaccion=models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name="servicioTransaccion", null=True, blank=True)
     numero_horas = models.IntegerField(verbose_name="Horas de Transferencia")
     numero_minutos = models.IntegerField(verbose_name="Minutos")
     descripcion = models.CharField(verbose_name="Descripción", max_length=256)
     demandante = models.ManyToManyField(Usuario, related_name="transacciones_demandante", blank=True)
     fecha_transaccion = models.DateField(verbose_name="Fecha de Transacción")
-    def __str__(self):
-        return self.servicioTransaccion
-    
-class Calificacion(models.Model):
-    calificacionServicio=models.ForeignKey(TransaccionTiempo, on_delete=models.CASCADE, related_name="calificacionServicio", null=True, blank=True)
-    puntuacion = models.IntegerField(verbose_name="Puntuación")
-    comentarios = models.CharField(verbose_name="Comentarios", max_length=50)
-    usuario_calificacion = models.ManyToManyField(Usuario, related_name="calificaciones", blank=True)
-    def __str__(self):
-        return self.calificacionServicio
