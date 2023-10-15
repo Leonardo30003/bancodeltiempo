@@ -26,7 +26,8 @@ class Rol(models.Model):
     def __str__(self):
         return self.nombre_rol
 
-class Usuario(Persona):
+class Usuario(models.Model):
+    persona = models.OneToOneField(Persona, on_delete=models.CASCADE)
     nombre_usuario = models.CharField(verbose_name="Usuario", max_length=50)
     password = models.CharField(verbose_name="Contraseña", max_length=50)
     rol = models.ManyToManyField(Rol, related_name="usuarios", blank=True)
