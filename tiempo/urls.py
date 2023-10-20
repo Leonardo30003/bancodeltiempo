@@ -28,5 +28,3 @@ urlpatterns = [
     path('api/transaccion/<int:pk>', TransaccionViewSet.as_view({'get':'retrieve','put':'update'}), name="detalle-transaccion"), 
 ]
 
-
-#### todo lo que va en el aplicativo
