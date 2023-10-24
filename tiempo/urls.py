@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import ServicioViewSet,CuentaViewSet,RolViewSet,PersonaViewSet,CategoriaViewSet,InteresViewSet,CalificacionViewSet,TransaccionViewSet
+from rest_framework_simplejwt import TokenObtainPairView
 
 urlpatterns = [
     #path para Servicios
@@ -26,7 +27,8 @@ urlpatterns = [
      #path para  TransaccionTiempo
     path('api/trasacciones',TransaccionViewSet.as_view({'get':'list','post':'create'}), name="lista-transacciones"),
     path('api/transaccion/<int:pk>', TransaccionViewSet.as_view({'get':'retrieve','put':'update'}), name="detalle-transaccion"), 
+    #autentificacion
+    path('api/login',TokenObtainPairView.as_view(),name="token_obtain_pair")
 ]
 
 
-#### todo lo que va en el aplicativo
